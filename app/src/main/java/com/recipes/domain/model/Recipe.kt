@@ -8,5 +8,6 @@ data class Recipe(
     val category: String,
     val ingredients: List<String>,
     val steps: List<String>,
-    val tags: List<String>
+    val tags: List<String>,
+    val isFavorite: Boolean
 )
