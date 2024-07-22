@@ -7,5 +7,5 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class RecipesScreenState(
     val recipes: List<Recipe> = emptyList(),
-    val folders: List<String> = listOf("f1", "f2", "dfsdf", "f33")
+    val folders: List<String> = listOf()
 ) : Parcelable

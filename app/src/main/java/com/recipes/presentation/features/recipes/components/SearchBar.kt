@@ -5,8 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Text
@@ -41,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.recipes.R
 import com.recipes.presentation.common.components.keyboardIsOpened
-import com.recipes.presentation.common.theme.FontPlayWriteCLLight
+import com.recipes.presentation.common.theme.FontEduAuvicWantHandRegular
 import com.recipes.presentation.common.theme.Gray
 import com.recipes.presentation.common.theme.LightGrey
 import com.recipes.presentation.common.theme.RecipesTheme
@@ -60,7 +62,7 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     maxTextLength: Int = 50,
     onSearchTextChanged: (searchText: String) -> Unit,
-    onShowOnlyFromBookmarksChanged: (showOnlyFromBookmarks: Boolean) -> Unit,
+    onShowOnlyPinnedChanged: (showOnlyFromBookmarks: Boolean) -> Unit,
     onFoldersIconClicked: () -> Unit,
 ) {
     var searchText by rememberSaveable {
@@ -70,7 +72,7 @@ fun SearchBar(
     var fieldIsFocused by rememberSaveable {
         mutableStateOf(false)
     }
-    var showOnlyFromBookmarks by rememberSaveable {
+    var showOnlyPinned by rememberSaveable {
         mutableStateOf(false)
     }
 
@@ -131,7 +133,7 @@ fun SearchBar(
                 }
             },
             textStyle = TextStyle(
-                fontFamily = FontPlayWriteCLLight,
+                fontFamily = FontEduAuvicWantHandRegular,
                 fontSize = 16.sp,
                 color = LightGrey
             ),
@@ -141,7 +143,7 @@ fun SearchBar(
             val placeHolder = "Search"
             if (searchText.isEmpty()) {
                 Text(
-                    fontFamily = FontPlayWriteCLLight,
+                    fontFamily = FontEduAuvicWantHandRegular,
                     text = placeHolder,
                     modifier = Modifier,
                     textAlign = TextAlign.Start,
@@ -174,31 +176,49 @@ fun SearchBar(
                 .size(32.dp)
                 .align(Alignment.CenterVertically)
         )
-        Image(
-            painter = painterResource(
-                id = if (showOnlyFromBookmarks) R.drawable.ic_in_bookmarks
-                else R.drawable.ic_bookmarks
-            ),
-            colorFilter = ColorFilter.tint(LightGrey),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(start = 8.dp, end = 4.dp)
-                .clickable(
-                    interactionSource = remember {
-                        MutableInteractionSource()
-                    },
-                    indication = rememberRipple(
-                        bounded = false,
-                        radius = 32.dp,
-                        color = Gray
-                    )
-                ) {
-                    showOnlyFromBookmarks = !showOnlyFromBookmarks
-                    onShowOnlyFromBookmarksChanged(showOnlyFromBookmarks)
-                }
-                .size(32.dp)
-                .align(Alignment.CenterVertically)
-        )
+        if (showOnlyPinned) {
+            RedPin(
+                modifier = Modifier
+                    .height(32.dp)
+                    .width(32.dp)
+                    .padding(start = 8.dp, end = 4.dp)
+                    .align(Alignment.CenterVertically)
+                    .clickable(
+                        interactionSource = remember {
+                            MutableInteractionSource()
+                        },
+                        indication = rememberRipple(
+                            bounded = false,
+                            radius = 32.dp,
+                            color = Gray
+                        )
+                    ) {
+                        showOnlyPinned = !showOnlyPinned
+                        onShowOnlyPinnedChanged(showOnlyPinned)
+                    }
+            )
+        } else {
+            LiteGrayPin(
+                modifier = Modifier
+                    .height(32.dp)
+                    .width(32.dp)
+                    .padding(start = 8.dp, end = 4.dp)
+                    .align(Alignment.CenterVertically)
+                    .clickable(
+                        interactionSource = remember {
+                            MutableInteractionSource()
+                        },
+                        indication = rememberRipple(
+                            bounded = false,
+                            radius = 32.dp,
+                            color = Gray
+                        )
+                    ) {
+                        showOnlyPinned = !showOnlyPinned
+                        onShowOnlyPinnedChanged(showOnlyPinned)
+                    }
+            )
+        }
     }
 }
 
@@ -208,7 +228,7 @@ private fun SearchBarPreview() {
     RecipesTheme {
         SearchBar(
             onSearchTextChanged = {},
-            onShowOnlyFromBookmarksChanged = {},
+            onShowOnlyPinnedChanged = {},
             onFoldersIconClicked = {}
         )
     }

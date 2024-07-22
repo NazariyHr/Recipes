@@ -64,10 +64,10 @@ class RecipesRepositoryImpl(
     override fun getFoldersFlow(): Flow<List<String>> =
         getRecipesFlow().map { recipes -> recipes.map { it.folder } }
 
-    override fun changeRecipeIsFavorite(recipeId: Int, isFavorite: Boolean) {
+    override fun changeRecipeIsPinned(recipeId: Int, isPinned: Boolean) {
         val newRecipes =
             getRecipesFromPrefs()
-                .map { if (it.id == recipeId) it.copy(isFavorite = isFavorite) else it }
+                .map { if (it.id == recipeId) it.copy(isPinned = isPinned) else it }
         val newRecipesStr = Gson().toJson(newRecipes)
         prefs.edit { putString(RECIPES, newRecipesStr) }
         updateRecipesFlow()

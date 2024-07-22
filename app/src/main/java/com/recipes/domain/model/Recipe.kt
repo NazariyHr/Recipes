@@ -13,5 +13,5 @@ data class Recipe(
     val ingredients: String,
     val steps: String,
     val tags: String,
-    val isFavorite: Boolean
+    val isPinned: Boolean
 ) : Parcelable

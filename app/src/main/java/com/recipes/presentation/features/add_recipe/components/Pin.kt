@@ -9,20 +9,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.recipes.presentation.common.theme.Gray
 import com.recipes.presentation.common.theme.RecipesTheme
 
 @Composable
 fun Pin(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    lineWidthDp: Dp = 4.dp
 ) {
     Canvas(
         modifier = modifier
             .size(width = 30.dp, height = 70.dp)
     ) {
-        val lineWidth = 4.dp.toPx()
-        val radius = 22.dp.toPx()
+        val lineWidth = lineWidthDp.toPx()
+        val radius = size.width / 30 * 22
         val halfRadius = radius / 2
 
         val p = Path()

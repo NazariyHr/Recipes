@@ -13,5 +13,6 @@ val Cian = Color(0, 255, 255)
 val CianBlue = Color(108, 208, 208)
 val CianBlueDarker = Color(37, 187, 187, 255)
 val Green = Color(71, 216, 19, 255)
+val RedPinColor = Color(236, 44, 30, 255)
 
 val MainBgColor = LightGreen

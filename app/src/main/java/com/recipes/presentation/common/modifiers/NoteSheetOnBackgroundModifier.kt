@@ -1,4 +1,4 @@
-package com.recipes.presentation.features.add_recipe.modifiers
+package com.recipes.presentation.common.modifiers
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -16,7 +16,9 @@ import com.recipes.presentation.common.theme.RecipesTheme
 import com.recipes.presentation.common.theme.YellowLight
 import kotlin.math.roundToInt
 
-fun Modifier.drawNoteSheetOnBackGround(): Modifier =
+fun Modifier.drawNoteSheetOnBackGround(
+    withStartAndEndGap: Boolean = false
+): Modifier =
     this
         .background(
             YellowLight,
@@ -48,8 +50,8 @@ fun Modifier.drawNoteSheetOnBackGround(): Modifier =
             }
 
             val paddingForDots = 12.dp.toPx()
-            val startPadding = 20.dp.toPx()
-            val endPaddingValues = 20.dp.toPx()
+            val startPadding = if (withStartAndEndGap) 20.dp.toPx() else 0.dp.toPx()
+            val endPaddingValues = if (withStartAndEndGap) 20.dp.toPx() else 0.dp.toPx()
             val dotWidth = 20.dp.toPx()
             val gapBetweenDots = 20.dp.toPx()
             val dotsCount = (height / (dotWidth + gapBetweenDots / 2)).toInt() -

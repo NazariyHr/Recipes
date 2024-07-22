@@ -2,9 +2,14 @@ package com.recipes.presentation.features.recipes
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.recipes.domain.repository.RecipesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,9 +31,67 @@ class RecipesViewModel @Inject constructor(
     val state = savedStateHandle.getStateFlow(STATE_KEY, RecipesScreenState())
 
     private val searchText: MutableStateFlow<String> = MutableStateFlow("")
-    private val filterOnlyFavorites: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val filterOnlyPinned: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     init {
+        recipesRepository
+            .getFoldersFlow()
+            .onEach { folders ->
+                stateValue = stateValue.copy(
+                    folders = folders
+                )
+            }
+            .launchIn(viewModelScope)
 
+        combine(
+            recipesRepository.getRecipesFlow(),
+            searchText,
+            filterOnlyPinned
+        ) { recipes, searchText, onlyFavorites ->
+            recipes
+                .filter { recipe ->
+                    if (onlyFavorites) recipe.isPinned
+                    else true
+                }
+                .filter { recipe ->
+                    if (searchText.isNotEmpty()) {
+                        recipe.title.contains(searchText) ||
+                                recipe.folder.contains(searchText) ||
+                                recipe.tags.contains(searchText)
+                    } else {
+                        true
+                    }
+                }
+        }
+            .onEach { filteredRecipes ->
+                stateValue = stateValue.copy(
+                    recipes = filteredRecipes
+                )
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun onAction(action: RecipesScreenActions) {
+        when (action) {
+            is RecipesScreenActions.OnNewFilterPinned -> {
+                viewModelScope.launch {
+                    filterOnlyPinned.emit(action.filterOnlyPinned)
+                }
+            }
+
+            is RecipesScreenActions.OnNewSearchText -> {
+                viewModelScope.launch {
+                    searchText.emit(action.searchText)
+                }
+            }
+
+            is RecipesScreenActions.OnPinRecipe -> {
+                recipesRepository.changeRecipeIsPinned(action.recipeId, true)
+            }
+
+            is RecipesScreenActions.OnRemoveRecipeFromPinned -> {
+                recipesRepository.changeRecipeIsPinned(action.recipeId, false)
+            }
+        }
     }
 }

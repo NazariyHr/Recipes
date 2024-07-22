@@ -88,6 +88,7 @@ import coil.size.Size
 import com.recipes.R
 import com.recipes.presentation.common.components.keyboardIsOpened
 import com.recipes.presentation.common.components.rememberKeyboardHeight
+import com.recipes.presentation.common.modifiers.drawNoteSheetOnBackGround
 import com.recipes.presentation.common.theme.CianBlueDarker
 import com.recipes.presentation.common.theme.DarkGrey
 import com.recipes.presentation.common.theme.FontEduAuvicWantHandBold
@@ -98,13 +99,13 @@ import com.recipes.presentation.common.theme.GrayLighter
 import com.recipes.presentation.common.theme.LightGrey
 import com.recipes.presentation.common.theme.MainBgColor
 import com.recipes.presentation.common.theme.RecipesTheme
+import com.recipes.presentation.common.utils.formatTags
 import com.recipes.presentation.features.add_recipe.components.AttachPhotoButton
 import com.recipes.presentation.features.add_recipe.components.NotesTextField
 import com.recipes.presentation.features.add_recipe.components.Pin
 import com.recipes.presentation.features.add_recipe.components.RemoveButton
 import com.recipes.presentation.features.add_recipe.components.SaveRecipeButton
 import com.recipes.presentation.features.add_recipe.components.TakeChooseButtons
-import com.recipes.presentation.features.add_recipe.modifiers.drawNoteSheetOnBackGround
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -178,7 +179,7 @@ private fun AddRecipeScreen(
             if (folderText.isEmpty()) {
                 state.foldersList
             } else {
-                state.foldersList.filter { it.contains(folderText) }
+                state.foldersList.filter { it.lowercase().contains(folderText.lowercase()) }
             }
         }
     }
@@ -404,9 +405,7 @@ private fun AddRecipeScreen(
                                 )
                             )
                         ) {
-                            Box(
-                                modifier = Modifier
-                            ) {
+                            Box {
                                 AsyncImage(
                                     model = ImageRequest.Builder(context)
                                         .memoryCachePolicy(CachePolicy.ENABLED)
@@ -420,7 +419,7 @@ private fun AddRecipeScreen(
                                             )
                                         )
                                         .build(),
-                                    contentDescription = "News article image",
+                                    contentDescription = null,
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
                                         .height(162.dp)
@@ -432,9 +431,6 @@ private fun AddRecipeScreen(
                                             interactionSource = null
                                         ) {
                                             showPhotoFullScreen = true
-//                                            photoUri?.let { uri ->
-//                                                onPhotoClicked(uri.toString())
-//                                            }
                                         }
                                 )
 
@@ -645,20 +641,9 @@ private fun AddRecipeScreen(
                             fontSize = 20.sp,
                             fontFamily = FontEduAuvicWantHandMedium,
                             customTextDrawComposable = { tagsStr ->
-                                val tags = tagsStr
-                                    .split(",")
-                                    .map { it.trim() }
-                                    .filter { it.isNotEmpty() }
-                                    .map {
-                                        "#" + it
-                                            .replace(" ", "_")
-                                            .replace("\n", "_")
-                                    }
-                                    .distinct()
-                                val formattedTags = tags.joinToString(separator = "  ")
                                 Text(
                                     fontFamily = FontEduAuvicWantHandMedium,
-                                    text = formattedTags,
+                                    text = tagsStr.formatTags(),
                                     modifier = Modifier
                                         .onPlaced {
                                             tagsHeight = it.size.height
