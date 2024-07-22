@@ -61,9 +61,9 @@ class RecipesViewModel @Inject constructor(
                 }
                 .filter { recipe ->
                     if (searchText.isNotEmpty()) {
-                        recipe.title.contains(searchText) ||
-                                recipe.folder.contains(searchText) ||
-                                recipe.tags.contains(searchText)
+                        recipe.title.lowercase().contains(searchText.lowercase()) ||
+                                recipe.folder.lowercase().contains(searchText.lowercase()) ||
+                                recipe.tags.lowercase().contains(searchText.lowercase())
                     } else {
                         true
                     }
