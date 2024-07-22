@@ -140,6 +140,9 @@ fun SearchBar(
             cursorBrush = SolidColor(LightGrey),
             singleLine = true
         ) { innerTextField ->
+            if (fieldIsFocused) {
+                innerTextField()
+            }
             val placeHolder = "Search"
             if (searchText.isEmpty()) {
                 Text(
@@ -150,8 +153,6 @@ fun SearchBar(
                     fontSize = 16.sp,
                     color = LightGrey
                 )
-            } else {
-                innerTextField()
             }
         }
 

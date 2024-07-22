@@ -1,5 +1,9 @@
 package com.recipes.presentation.features.recipe_details
 
+import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,15 +27,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalContext
@@ -58,8 +61,6 @@ import com.recipes.presentation.common.theme.DarkGrey
 import com.recipes.presentation.common.theme.FontEduAuvicWantHandBold
 import com.recipes.presentation.common.theme.FontEduAuvicWantHandMedium
 import com.recipes.presentation.common.theme.FontEduAuvicWantHandRegular
-import com.recipes.presentation.common.theme.Gray
-import com.recipes.presentation.common.theme.LightGrey
 import com.recipes.presentation.common.theme.MainBgColor
 import com.recipes.presentation.common.theme.RecipesTheme
 import com.recipes.presentation.common.utils.formatCookingSteps
@@ -67,6 +68,7 @@ import com.recipes.presentation.common.utils.formatIngredients
 import com.recipes.presentation.common.utils.formatTags
 import com.recipes.presentation.features.add_recipe.components.Pin
 import com.recipes.presentation.features.add_recipe.components.RemoveButton
+import kotlinx.coroutines.Dispatchers
 
 @Composable
 fun RecipeDetailsScreenRoot(
@@ -101,12 +103,20 @@ private fun RecipeDetailsScreen(
     val d = LocalDensity.current
     val scrollState = rememberScrollState()
 
+    var showPhotoFullScreen by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     Scaffold { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = MainBgColor)
                 .padding(paddingValues)
+                .then(
+                    if (showPhotoFullScreen) Modifier.blur(4.dp)
+                    else Modifier
+                )
         ) {
             // Screen title
             Box(
@@ -175,6 +185,12 @@ private fun RecipeDetailsScreen(
                                     .width(imageWidth)
                                     .rotate(-3f)
                                     .padding(top = 12.dp)
+                                    .clickable(
+                                        indication = null,
+                                        interactionSource = null
+                                    ) {
+                                        showPhotoFullScreen = true
+                                    }
                             )
                             Pin(
                                 modifier = Modifier
@@ -341,6 +357,50 @@ private fun RecipeDetailsScreen(
                         }
                         .size(32.dp)
                 )
+            }
+        }
+
+        // Photo pop up
+        AnimatedVisibility(
+            visible = showPhotoFullScreen,
+            enter = scaleIn(),
+            exit = scaleOut()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        top = paddingValues.calculateTopPadding(),
+                        bottom = paddingValues.calculateBottomPadding()
+                    )
+                    .clickable(
+                        indication = null,
+                        interactionSource = null
+                    ) { }
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    if (!recipe.photoUriStr.isNullOrEmpty()) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .dispatcher(Dispatchers.IO)
+                                .data(Uri.parse(recipe.photoUriStr))
+                                .build(),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                    RemoveButton(
+                        onClicked = {
+                            showPhotoFullScreen = false
+                        },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(end = 12.dp, top = 12.dp)
+                    )
+                }
             }
         }
     }

@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Recipes</string>
     <string name="fileprovider">com.recipes.fileprovider</string>
+
+    <string name="privacy_policy_link">https://www.google.com/</string>
+    <string name="contact_us_link">https://www.google.com/</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.recipes.presentation.features.recipes
 
+import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -63,7 +64,6 @@ import com.recipes.presentation.common.theme.CianBlueDarker
 import com.recipes.presentation.common.theme.DarkGrey
 import com.recipes.presentation.common.theme.FontEduAuvicWantHandMedium
 import com.recipes.presentation.common.theme.FontPlayWriteCLRegular
-import com.recipes.presentation.common.theme.Gray
 import com.recipes.presentation.common.theme.LightGrey
 import com.recipes.presentation.common.theme.MainBgColor
 import com.recipes.presentation.common.theme.RecipesTheme
@@ -85,6 +85,7 @@ fun RecipesScreenRoot(
     viewModel: RecipesViewModel =
         hiltViewModel()
 ) {
+    val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     RecipesScreen(
         state = state,
@@ -93,6 +94,10 @@ fun RecipesScreenRoot(
         },
         onRecipeClicked = { recipeId ->
             navController.navigate(Screen.RecipeDetails(recipeId))
+        },
+        onLinkClicked = { link ->
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+            context.startActivity(browserIntent)
         },
         onAction = viewModel::onAction
     )
@@ -103,6 +108,7 @@ private fun RecipesScreen(
     state: RecipesScreenState,
     onAddRecipeClicked: () -> Unit,
     onRecipeClicked: (recipeId: Int) -> Unit,
+    onLinkClicked: (link: String) -> Unit,
     onAction: (RecipesScreenActions) -> Unit
 ) {
     val d = LocalDensity.current
@@ -230,12 +236,13 @@ private fun RecipesScreen(
                                 )
                                 .padding(start = 30.dp)
                                 .clickable(
-                                    interactionSource = remember{ MutableInteractionSource() },
+                                    interactionSource = remember { MutableInteractionSource() },
                                     indication = rememberRipple(
                                         bounded = true,
                                         color = YellowLight
                                     )
                                 ) {
+                                    hidePopUps()
                                     onRecipeClicked(recipe.id)
                                 }
                         ) {
@@ -253,7 +260,6 @@ private fun RecipesScreen(
                                             model = ImageRequest.Builder(context)
                                                 .memoryCachePolicy(CachePolicy.ENABLED)
                                                 .data(Uri.parse(recipe.photoUriStr))
-                                                //.data(R.drawable.dish_example)
                                                 .size(
                                                     Size(
                                                         with(LocalDensity.current) {
@@ -402,8 +408,9 @@ private fun RecipesScreen(
                     .padding(end = 48.dp)
             ) {
                 LinksMenuPopUp(
-                    onLinkClicked = {
+                    onLinkClicked = { link ->
                         linksPopUpVisible = false
+                        onLinkClicked(link)
                     }
                 )
             }
@@ -419,6 +426,7 @@ private fun RecipesScreen(
                     selectedFolder = selectedFolder,
                     onFolderClicked = { newSelectedFolder ->
                         selectedFolder = newSelectedFolder
+                        onAction(RecipesScreenActions.OnNewFolderText(selectedFolder))
                     },
                     modifier = Modifier
                 )
@@ -457,6 +465,7 @@ private fun RecipesScreenPreview() {
                 recipes = recipes
             ),
             onAddRecipeClicked = {},
+            onLinkClicked = {},
             onAction = {},
             onRecipeClicked = {}
         )

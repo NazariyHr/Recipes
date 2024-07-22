@@ -31,6 +31,7 @@ class RecipesViewModel @Inject constructor(
     val state = savedStateHandle.getStateFlow(STATE_KEY, RecipesScreenState())
 
     private val searchText: MutableStateFlow<String> = MutableStateFlow("")
+    private val selectedFolder: MutableStateFlow<String?> = MutableStateFlow(null)
     private val filterOnlyPinned: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     init {
@@ -38,7 +39,7 @@ class RecipesViewModel @Inject constructor(
             .getFoldersFlow()
             .onEach { folders ->
                 stateValue = stateValue.copy(
-                    folders = folders
+                    folders = folders.distinct()
                 )
             }
             .launchIn(viewModelScope)
@@ -46,9 +47,14 @@ class RecipesViewModel @Inject constructor(
         combine(
             recipesRepository.getRecipesFlow(),
             searchText,
+            selectedFolder,
             filterOnlyPinned
-        ) { recipes, searchText, onlyFavorites ->
+        ) { recipes, searchText, selectedFolder, onlyFavorites ->
             recipes
+                .filter { recipe ->
+                    if (selectedFolder != null) recipe.folder == selectedFolder
+                    else true
+                }
                 .filter { recipe ->
                     if (onlyFavorites) recipe.isPinned
                     else true
@@ -91,6 +97,12 @@ class RecipesViewModel @Inject constructor(
 
             is RecipesScreenActions.OnRemoveRecipeFromPinned -> {
                 recipesRepository.changeRecipeIsPinned(action.recipeId, false)
+            }
+
+            is RecipesScreenActions.OnNewFolderText ->{
+                viewModelScope.launch {
+                    selectedFolder.emit(action.folder)
+                }
             }
         }
     }

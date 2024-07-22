@@ -99,6 +99,7 @@ import com.recipes.presentation.common.theme.GrayLighter
 import com.recipes.presentation.common.theme.LightGrey
 import com.recipes.presentation.common.theme.MainBgColor
 import com.recipes.presentation.common.theme.RecipesTheme
+import com.recipes.presentation.common.utils.copyFile
 import com.recipes.presentation.common.utils.formatCookingSteps
 import com.recipes.presentation.common.utils.formatIngredients
 import com.recipes.presentation.common.utils.formatTags
@@ -232,19 +233,29 @@ private fun AddRecipeScreen(
         }
     }
 
-    val directory = File(context.cacheDir, "images")
+    val cacheDirectory = File(context.cacheDir, "images")
+    val fileDirectory = File(context.filesDir, "images")
 
     var tempUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var photoUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    var photoFile by rememberSaveable { mutableStateOf<File?>(null) }
     val authority = stringResource(id = R.string.fileprovider)
 
-    val getTempUri: () -> Uri? = {
-        directory.mkdirs()
+    val getTempFile: () -> File = {
+        cacheDirectory.mkdirs()
         val file = File.createTempFile(
             "image_" + System.currentTimeMillis().toString(),
             ".jpg",
-            directory
+            cacheDirectory
         )
+        file
+    }
+    val getStableFile: () -> File = {
+        fileDirectory.mkdirs()
+        val file = File(fileDirectory, "image_" + System.currentTimeMillis().toString() + ".jpg")
+        file
+    }
+    val getUri: (file: File) -> Uri? = { file ->
         FileProvider.getUriForFile(
             context,
             authority,
@@ -256,10 +267,16 @@ private fun AddRecipeScreen(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { isSaved ->
             if (isSaved) {
-                tempUri?.let {
-                    photoUri = it
-                    showPhoto = true
-                    showAttachPhotoButton = false
+                val newStableFile = getStableFile().also { photoFile = it }
+                val uri = getUri(newStableFile)
+
+                scope.launch(Dispatchers.IO) {
+                    tempUri?.let {
+                        copyFile(context, tempUri, uri)
+                        photoUri = uri
+                        showPhoto = true
+                        showAttachPhotoButton = false
+                    }
                 }
             }
         }
@@ -269,8 +286,10 @@ private fun AddRecipeScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            tempUri = getTempUri()
-            takePhotoLauncher.launch(tempUri!!)
+            getUri(getTempFile())?.let { uri ->
+                tempUri = uri
+                takePhotoLauncher.launch(uri)
+            }
         } else {
             if (state.permissionsWasAsked) {
                 grantPermissionThroughSettings()
@@ -284,9 +303,15 @@ private fun AddRecipeScreen(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { imageUri ->
             imageUri?.let {
-                photoUri = it
-                showPhoto = true
-                showAttachPhotoButton = false
+                scope.launch(Dispatchers.IO) {
+                    val newStableFile = getStableFile().also { photoFile = it }
+                    val uri = getUri(newStableFile)
+
+                    copyFile(context, it, uri)
+                    photoUri = uri
+                    showPhoto = true
+                    showAttachPhotoButton = false
+                }
             }
         }
     )
@@ -440,6 +465,14 @@ private fun AddRecipeScreen(
                                     onClicked = {
                                         showPhoto = false
                                         showAttachPhotoButton = true
+
+                                        scope.launch(Dispatchers.IO) {
+                                            photoFile?.let { photoFile ->
+                                                if (photoFile.exists()) {
+                                                    photoFile.delete()
+                                                }
+                                            }
+                                        }
                                     },
                                     modifier = Modifier
                                         .padding(top = 12.dp, end = 8.dp)
@@ -883,9 +916,10 @@ private fun AddRecipeScreen(
                                     permission
                                 ) == PackageManager.PERMISSION_GRANTED
                             ) {
-                                val tmpUri = getTempUri()
-                                tempUri = tmpUri
-                                takePhotoLauncher.launch(tempUri!!)
+                                getUri(getTempFile())?.let { uri ->
+                                    tempUri = uri
+                                    takePhotoLauncher.launch(uri)
+                                }
                             } else {
                                 cameraPermissionLauncher.launch(permission)
                             }

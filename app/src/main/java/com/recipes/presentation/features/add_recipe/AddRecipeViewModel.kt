@@ -39,7 +39,7 @@ class AddRecipeViewModel @Inject constructor(
             .getFoldersFlow()
             .onEach { folders ->
                 stateValue = stateValue.copy(
-                    foldersList = folders
+                    foldersList = folders.distinct()
                 )
             }
             .launchIn(viewModelScope)

@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -45,6 +46,7 @@ fun LinksMenuPopUp(
     modifier: Modifier = Modifier
 ) {
     val d = LocalDensity.current
+    val context = LocalContext.current
 
     var lineWidth by remember {
         mutableStateOf(0.dp)
@@ -60,7 +62,7 @@ fun LinksMenuPopUp(
             modifier = Modifier
                 .widthIn(min = lineWidth)
                 .clickable {
-                    onLinkClicked("")
+                    onLinkClicked(context.getString(R.string.privacy_policy_link))
                 }
                 .padding(bottom = 4.dp, top = 8.dp, start = 8.dp, end = 8.dp)
         ) {
@@ -91,7 +93,7 @@ fun LinksMenuPopUp(
             modifier = Modifier
                 .widthIn(min = lineWidth)
                 .clickable {
-                    onLinkClicked("")
+                    onLinkClicked(context.getString(R.string.contact_us_link))
                 }
                 .padding(bottom = 8.dp, top = 4.dp, start = 8.dp, end = 8.dp)
         ) {
