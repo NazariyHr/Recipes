@@ -1,8 +1,11 @@
 package com.recipes.presentation.features.add_recipe
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -107,19 +110,32 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 
+
 @Composable
 fun AddRecipeScreenRoot(
     navController: NavController,
     viewModel: AddRecipeViewModel =
         hiltViewModel()
 ) {
+    val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     AddRecipeScreen(
         state = state,
         goBack = {
             navController.navigateUp()
         },
-        onAction = viewModel::onAction
+        onAction = viewModel::onAction,
+        grantPermissionThroughSettings = {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri = Uri.fromParts("package", context.packageName, null)
+            intent.setData(uri)
+            context.startActivity(intent)
+            Toast.makeText(
+                context,
+                "Please, grand Camera permissions for taking a photo",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     )
 }
 
@@ -127,7 +143,8 @@ fun AddRecipeScreenRoot(
 private fun AddRecipeScreen(
     goBack: () -> Unit,
     state: AddRecipeState,
-    onAction: (AddRecipeScreenActions) -> Unit
+    onAction: (AddRecipeScreenActions) -> Unit,
+    grantPermissionThroughSettings: () -> Unit
 ) {
     val context = LocalContext.current
     val d = LocalDensity.current
@@ -218,7 +235,6 @@ private fun AddRecipeScreen(
     var photoUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     val authority = stringResource(id = R.string.fileprovider)
 
-    // for takePhotoLauncher used
     val getTempUri: () -> Uri? = {
         directory.mkdirs()
         val file = File.createTempFile(
@@ -252,6 +268,12 @@ private fun AddRecipeScreen(
         if (isGranted) {
             tempUri = getTempUri()
             takePhotoLauncher.launch(tempUri!!)
+        } else {
+            if (state.permissionsWasAsked) {
+                grantPermissionThroughSettings()
+            } else {
+                onAction(AddRecipeScreenActions.PermissionsAsked)
+            }
         }
     }
 
@@ -886,7 +908,8 @@ private fun AddRecipeScreen(
                             showPhotoPopUp = false
 
                             val permission = Manifest.permission.CAMERA
-                            if (ContextCompat.checkSelfPermission(
+                            if (
+                                ContextCompat.checkSelfPermission(
                                     context,
                                     permission
                                 ) == PackageManager.PERMISSION_GRANTED
@@ -1034,7 +1057,8 @@ private fun AddRecipeScreenPreview() {
                 foldersList = foldersList
             ),
             goBack = {},
-            onAction = {}
+            onAction = {},
+            grantPermissionThroughSettings = {}
         )
     }
 }

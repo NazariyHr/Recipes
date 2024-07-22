@@ -10,4 +10,6 @@ sealed class AddRecipeScreenActions {
         val steps: String,
         val tags: String
     ) : AddRecipeScreenActions()
+
+    data object PermissionsAsked : AddRecipeScreenActions()
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.recipes.domain.model.Recipe
 import com.recipes.domain.repository.RecipesRepository
+import com.recipes.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -13,7 +14,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AddRecipeViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val recipesRepository: RecipesRepository
+    private val recipesRepository: RecipesRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
     companion object {
         const val STATE_KEY = "state"
@@ -30,6 +32,9 @@ class AddRecipeViewModel @Inject constructor(
 
 
     init {
+        stateValue = stateValue.copy(
+            permissionsWasAsked = settingsRepository.isPermissionsWasAsked()
+        )
         recipesRepository
             .getFoldersFlow()
             .onEach { folders ->
@@ -38,14 +43,6 @@ class AddRecipeViewModel @Inject constructor(
                 )
             }
             .launchIn(viewModelScope)
-
-//        viewModelScope.launch {
-//            val foldersList = mutableListOf<String>()
-//            for (i in 1..1000) {
-//                foldersList.add("folder $i")
-//            }
-//            stateValue = stateValue.copy(foldersList = foldersList)
-//        }
     }
 
     fun onAction(action: AddRecipeScreenActions) {
@@ -63,6 +60,13 @@ class AddRecipeViewModel @Inject constructor(
                         action.tags,
                         false
                     )
+                )
+            }
+
+            AddRecipeScreenActions.PermissionsAsked -> {
+                settingsRepository.setPermissionsWasAsked()
+                stateValue = stateValue.copy(
+                    permissionsWasAsked = true
                 )
             }
         }

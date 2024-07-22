@@ -2,7 +2,9 @@ package com.recipes.di
 
 import android.content.Context
 import com.recipes.data.RecipesRepositoryImpl
+import com.recipes.data.SettingsRepositoryImpl
 import com.recipes.domain.repository.RecipesRepository
+import com.recipes.domain.repository.SettingsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,5 +22,13 @@ object AppModule {
         @ApplicationContext context: Context
     ): RecipesRepository {
         return RecipesRepositoryImpl(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSettingsRepository(
+        @ApplicationContext context: Context
+    ): SettingsRepository {
+        return SettingsRepositoryImpl(context)
     }
 }

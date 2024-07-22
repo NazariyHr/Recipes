@@ -162,7 +162,6 @@ private fun RecipesScreen(
                 )
 
                 //todo : list with receipts
-                //todo : add new recipe screen
                 //todo : recipe details screen
                 //todo : remove recipe
             }

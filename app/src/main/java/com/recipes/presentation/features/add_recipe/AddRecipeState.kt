@@ -6,5 +6,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class AddRecipeState(
     val t: String = "",
-    val foldersList: List<String> = emptyList()
+    val foldersList: List<String> = emptyList(),
+    val permissionsWasAsked: Boolean = false
 ) : Parcelable
