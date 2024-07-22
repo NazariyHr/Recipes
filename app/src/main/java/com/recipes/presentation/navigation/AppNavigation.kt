@@ -6,7 +6,6 @@ import android.os.Parcelable
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -58,10 +57,16 @@ fun AppNavigation(
             composableNoTransition<Screen.Recipes> {
                 RecipesScreenRoot(navController)
             }
-            composableNoTransition<Screen.RecipeDetails>(
+            composable<Screen.RecipeDetails>(
                 typeMap = mapOf(
                     typeOf<Screen.RecipeDetails>() to parcelableType<Screen.RecipeDetails>()
-                )
+                ),
+                enterTransition = {
+                    scaleIn()
+                },
+                exitTransition = {
+                    scaleOut(animationSpec = tween())
+                }
             ) {
                 val recipeId = it.toRoute<Screen.RecipeDetails>().recipeId
                 RecipeDetailsScreenRoot(recipeId, navController)
@@ -74,9 +79,7 @@ fun AppNavigation(
                 },
                 exitTransition = {
                     scaleOut(
-                        animationSpec = tween(
-                            easing = LinearEasing
-                        ),
+                        animationSpec = tween(),
                         targetScale = 0f,
                         transformOrigin = TransformOrigin(0.5f, 0.2f)
                     )
