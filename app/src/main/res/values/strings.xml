@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Recipes</string>
+    <string name="fileprovider">com.recipes.fileprovider</string>
 </resources>

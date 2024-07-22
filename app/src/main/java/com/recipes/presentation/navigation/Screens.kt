@@ -11,4 +11,7 @@ sealed class Screen {
     @Serializable
     @Parcelize
     data class RecipeDetails(val recipeId: Int) : Screen(), Parcelable
+
+    @Serializable
+    data object AddRecipe : Screen()
 }

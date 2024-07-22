@@ -61,6 +61,9 @@ class RecipesRepositoryImpl(
     override fun getRecipeFlow(recipeId: Int): Flow<Recipe?> =
         getRecipesFlow().map { recipes -> recipes.find { r -> r.id == recipeId } }
 
+    override fun getFoldersFlow(): Flow<List<String>> =
+        getRecipesFlow().map { recipes -> recipes.map { it.folder } }
+
     override fun changeRecipeIsFavorite(recipeId: Int, isFavorite: Boolean) {
         val newRecipes =
             getRecipesFromPrefs()
@@ -69,4 +72,6 @@ class RecipesRepositoryImpl(
         prefs.edit { putString(RECIPES, newRecipesStr) }
         updateRecipesFlow()
     }
+
+    override fun getNextId(): Int = (getRecipesFromPrefs().lastOrNull()?.id ?: 0) + 1
 }

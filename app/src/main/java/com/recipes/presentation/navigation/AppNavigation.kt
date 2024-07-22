@@ -6,9 +6,14 @@ import android.os.Parcelable
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
@@ -20,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.recipes.presentation.common.theme.RecipesTheme
+import com.recipes.presentation.features.add_recipe.AddRecipeScreenRoot
 import com.recipes.presentation.features.recipe_details.RecipeDetailsScreenRoot
 import com.recipes.presentation.features.recipes.RecipesScreenRoot
 import kotlinx.serialization.encodeToString
@@ -59,6 +65,24 @@ fun AppNavigation(
             ) {
                 val recipeId = it.toRoute<Screen.RecipeDetails>().recipeId
                 RecipeDetailsScreenRoot(recipeId, navController)
+            }
+            composable<Screen.AddRecipe>(
+                enterTransition = {
+                    scaleIn(
+                        transformOrigin = TransformOrigin(0.5f, 0.2f)
+                    )
+                },
+                exitTransition = {
+                    scaleOut(
+                        animationSpec = tween(
+                            easing = LinearEasing
+                        ),
+                        targetScale = 0f,
+                        transformOrigin = TransformOrigin(0.5f, 0.2f)
+                    )
+                }
+            ) {
+                AddRecipeScreenRoot(navController)
             }
         }
     }
