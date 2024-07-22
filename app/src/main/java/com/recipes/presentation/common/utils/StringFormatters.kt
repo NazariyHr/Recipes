@@ -13,3 +13,29 @@ fun String.formatTags(): String {
         .distinct()
     return tags.joinToString(separator = "  ")
 }
+
+fun String.formatIngredients(): String {
+    val ingredients = this
+        .split(",", "\n")
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .map {
+            "-  $it"
+        }
+    val formattedIngredients =
+        ingredients.joinToString(separator = "\n")
+    return formattedIngredients
+}
+
+fun String.formatCookingSteps(): String {
+    val ingredients = this
+        .split(",", "\n")
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .map {
+            "-  $it"
+        }
+    val formattedIngredients =
+        ingredients.joinToString(separator = "\n")
+    return formattedIngredients
+}

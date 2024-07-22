@@ -365,13 +365,15 @@ private fun RecipesScreen(
                                 }
                             }
 
-                            Pin(
-                                modifier = Modifier
-                                    .padding(start = 4.dp)
-                                    .size(width = 10.dp, height = 30.dp)
-                                    .rotate(3f),
-                                lineWidthDp = 2.dp
-                            )
+                            if (!recipe.photoUriStr.isNullOrEmpty()) {
+                                Pin(
+                                    modifier = Modifier
+                                        .padding(start = 4.dp)
+                                        .size(width = 10.dp, height = 30.dp)
+                                        .rotate(3f),
+                                    lineWidthDp = 2.dp
+                                )
+                            }
                         }
                     }
                 }
