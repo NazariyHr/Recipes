@@ -74,4 +74,12 @@ class RecipesRepositoryImpl(
     }
 
     override fun getNextId(): Int = (getRecipesFromPrefs().lastOrNull()?.id ?: 0) + 1
+
+    override fun removeRecipe(recipeId: Int) {
+        val newRecipes =
+            getRecipesFromPrefs().filter { it.id != recipeId}
+        val newRecipesStr = Gson().toJson(newRecipes)
+        prefs.edit { putString(RECIPES, newRecipesStr) }
+        updateRecipesFlow()
+    }
 }

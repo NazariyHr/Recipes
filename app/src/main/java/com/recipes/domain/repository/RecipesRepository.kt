@@ -10,4 +10,5 @@ interface RecipesRepository {
     fun addNewRecipe(recipe: Recipe)
     fun changeRecipeIsPinned(recipeId: Int, isPinned: Boolean)
     fun getNextId(): Int
+    fun removeRecipe(recipeId: Int)
 }

@@ -9,6 +9,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,9 +63,11 @@ import com.recipes.presentation.common.theme.CianBlueDarker
 import com.recipes.presentation.common.theme.DarkGrey
 import com.recipes.presentation.common.theme.FontEduAuvicWantHandMedium
 import com.recipes.presentation.common.theme.FontPlayWriteCLRegular
+import com.recipes.presentation.common.theme.Gray
 import com.recipes.presentation.common.theme.LightGrey
 import com.recipes.presentation.common.theme.MainBgColor
 import com.recipes.presentation.common.theme.RecipesTheme
+import com.recipes.presentation.common.theme.YellowLight
 import com.recipes.presentation.common.utils.formatTags
 import com.recipes.presentation.features.add_recipe.components.Pin
 import com.recipes.presentation.features.recipes.components.AddRecipeButton
@@ -87,6 +91,9 @@ fun RecipesScreenRoot(
         onAddRecipeClicked = {
             navController.navigate(Screen.AddRecipe)
         },
+        onRecipeClicked = { recipeId ->
+            navController.navigate(Screen.RecipeDetails(recipeId))
+        },
         onAction = viewModel::onAction
     )
 }
@@ -95,6 +102,7 @@ fun RecipesScreenRoot(
 private fun RecipesScreen(
     state: RecipesScreenState,
     onAddRecipeClicked: () -> Unit,
+    onRecipeClicked: (recipeId: Int) -> Unit,
     onAction: (RecipesScreenActions) -> Unit
 ) {
     val d = LocalDensity.current
@@ -221,7 +229,15 @@ private fun RecipesScreen(
                                     withStartAndEndGap = false
                                 )
                                 .padding(start = 30.dp)
-
+                                .clickable(
+                                    interactionSource = remember{ MutableInteractionSource() },
+                                    indication = rememberRipple(
+                                        bounded = true,
+                                        color = YellowLight
+                                    )
+                                ) {
+                                    onRecipeClicked(recipe.id)
+                                }
                         ) {
                             Row(
                                 modifier = Modifier
@@ -377,9 +393,6 @@ private fun RecipesScreen(
                         }
                     }
                 }
-
-                //todo : recipe details screen
-                //todo : remove recipe
             }
 
             AnimatedVisibility(
@@ -444,7 +457,8 @@ private fun RecipesScreenPreview() {
                 recipes = recipes
             ),
             onAddRecipeClicked = {},
-            onAction = {}
+            onAction = {},
+            onRecipeClicked = {}
         )
     }
 }

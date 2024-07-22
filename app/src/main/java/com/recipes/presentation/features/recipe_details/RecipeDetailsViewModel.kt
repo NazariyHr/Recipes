@@ -50,9 +50,13 @@ class RecipeDetailsViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun saveRecipeId(recipeId: Int) {
+    fun saveRecipeId(rId: Int) {
         viewModelScope.launch {
-            this.recipeId.emit(recipeId)
+            recipeId.emit(rId)
         }
+    }
+
+    fun removeRecipe(rId: Int) {
+        recipesRepository.removeRecipe(rId)
     }
 }

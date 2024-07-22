@@ -99,6 +99,8 @@ import com.recipes.presentation.common.theme.GrayLighter
 import com.recipes.presentation.common.theme.LightGrey
 import com.recipes.presentation.common.theme.MainBgColor
 import com.recipes.presentation.common.theme.RecipesTheme
+import com.recipes.presentation.common.utils.formatCookingSteps
+import com.recipes.presentation.common.utils.formatIngredients
 import com.recipes.presentation.common.utils.formatTags
 import com.recipes.presentation.features.add_recipe.components.AttachPhotoButton
 import com.recipes.presentation.features.add_recipe.components.NotesTextField
@@ -706,18 +708,9 @@ private fun AddRecipeScreen(
                                 fontSize = 16.sp,
                                 fontFamily = FontEduAuvicWantHandMedium,
                                 customTextDrawComposable = { ingredientsStr ->
-                                    val ingredients = ingredientsStr
-                                        .split(",", "\n")
-                                        .map { it.trim() }
-                                        .filter { it.isNotEmpty() }
-                                        .map {
-                                            "-  $it"
-                                        }
-                                    val formattedIngredients =
-                                        ingredients.joinToString(separator = "\n")
                                     Text(
                                         fontFamily = FontEduAuvicWantHandMedium,
-                                        text = formattedIngredients,
+                                        text = ingredientsStr.formatIngredients(),
                                         modifier = Modifier
                                             .onPlaced {
                                                 ingredientsHeight =
@@ -776,18 +769,9 @@ private fun AddRecipeScreen(
                                 fontSize = 16.sp,
                                 fontFamily = FontEduAuvicWantHandMedium,
                                 customTextDrawComposable = { stepsStr ->
-                                    val steps = stepsStr
-                                        .split("\n\n")
-                                        .map { it.trim() }
-                                        .filter { it.isNotEmpty() }
-                                        .mapIndexed { index, step ->
-                                            "${index + 1}.  $step"
-                                        }
-                                    val formattedIngredients =
-                                        steps.joinToString(separator = "\n\n")
                                     Text(
                                         fontFamily = FontEduAuvicWantHandMedium,
-                                        text = formattedIngredients,
+                                        text = stepsStr.formatCookingSteps(),
                                         modifier = Modifier,
                                         textAlign = TextAlign.Start,
                                         fontSize = 16.sp,
